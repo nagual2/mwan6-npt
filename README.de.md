@@ -15,7 +15,7 @@ mwan6-npt verwaltet automatisch IPv6-Präfix-Übersetzungsregeln für aktive Tun
 - **procd-Unterstützung**: Richtiges Init-Skript mit Service-Triggern
 - **nftables/fw4-Kompatibilität**: Verwendet OpenWrt 22.03+ Firewall-System
 - **Multi-WAN-Unterstützung**: Konfiguration mehrerer Schnittstellen mit verschiedenen Präfixen
-- **Standard-Gateway**: Markierung einer Schnittstelle als Standard für Traffic-Priorisierung
+- **Standard-Schnittstelle**: Eine Schnittstelle als LAN für NPTv6-Übersetzung markieren
 
 ## Installation
 
@@ -58,15 +58,15 @@ Aktivieren und starten:
 Bearbeiten Sie `/etc/config/mwan6-npt`:
 
 ```uci
-config globals 'globals'
+config interface 'lan'
 	option enabled '1'
-	option lan_prefix 'fd00:1111:2222:f000::/64'
-	option auto_reload '1'
+	option wan_prefix 'fd00:1111:2222:f000::/64'
+	option default '1'
 
 config interface 'tb6'
 	option enabled '1'
 	option wan_prefix 'fd00:aaaa:bbbb:14f::/64'
-	option default '1'
+	option default '0'
 
 config interface 'tb62'
 	option enabled '1'
@@ -76,15 +76,12 @@ config interface 'tb62'
 
 ### Optionen
 
-**globals-Sektion:**
-- `enabled`: Service aktivieren/deaktivieren (0/1)
-- `lan_prefix`: Ihr LAN-IPv6-Präfix (/64)
-- `auto_reload`: Firewall bei Änderungen automatisch neu laden (0/1)
-
 **interface-Sektion:**
 - `enabled`: Diese Schnittstelle aktivieren (0/1)
-- `wan_prefix`: WAN-IPv6-Präfix für diese Schnittstelle (/64)
-- `default`: Als Standardschnittstelle markieren (nur eine sollte `1` haben)
+- `wan_prefix`: IPv6-Präfix für diese Schnittstelle (/64)
+- `default`: Als LAN/Standard-Schnittstelle markieren (nur eine sollte `1` haben)
+  - Die Standard-Schnittstelle stellt das LAN-Präfix für NPTv6-Übersetzung bereit
+  - Alle anderen Schnittstellen übersetzen zu/von diesem Präfix
 
 ## Verwendung
 
@@ -107,19 +104,16 @@ config interface 'tb62'
 ### UCI-Befehle
 
 ```bash
-# LAN-Präfix setzen (ULA-Beispiel zum Testen)
-uci set mwan6-npt.globals.lan_prefix='fd00:1111:2222:f000::/64'
-
-# Neue Schnittstelle hinzufügen
+# Neue WAN-Schnittstelle hinzufügen
 uci add mwan6-npt interface
 uci set mwan6-npt.@interface[-1].name='tb64'
 uci set mwan6-npt.@interface[-1].wan_prefix='fd00:eeee:ffff:1f5::/64'
 uci set mwan6-npt.@interface[-1].enabled='1'
 uci set mwan6-npt.@interface[-1].default='0'
 
-# Standardschnittstelle wechseln
-uci set mwan6-npt.tb6.default='0'
-uci set mwan6-npt.tb64.default='1'
+# Standard-Schnittstelle (LAN) wechseln
+uci set mwan6-npt.lan.default='0'
+uci set mwan6-npt.tb6.default='1'
 
 # Änderungen anwenden
 uci commit mwan6-npt
@@ -161,7 +155,7 @@ fw4 reload → aktive nftables-Regeln
 Zum Testen auf `openwrt-dev` verwenden Sie ULA-Präfixe (fd00::/8):
 
 ```bash
-# LAN-Präfix (ULA)
+# LAN-Präfix (ULA) — von der Standard-Schnittstelle
 fd00:1111:2222:f000::/64
 
 # WAN-Präfixe (ULA)

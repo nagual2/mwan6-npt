@@ -15,7 +15,7 @@ mwan6-npt automatically manages IPv6 prefix translation rules for active tunnels
 - **procd Support**: Proper init script with service triggers
 - **nftables/fw4 Compatible**: Uses OpenWrt 22.03+ firewall system
 - **Multiple WAN Support**: Configure multiple interfaces with different prefixes
-- **Default Gateway**: Mark one interface as default for traffic prioritization
+- **Default Gateway**: Mark one interface as LAN (default) for NPTv6 translation
 
 ## Installation
 
@@ -58,15 +58,15 @@ Enable and start:
 Edit `/etc/config/mwan6-npt`:
 
 ```uci
-config globals 'globals'
+config interface 'lan'
 	option enabled '1'
-	option lan_prefix 'fd00:1111:2222:f000::/64'
-	option auto_reload '1'
+	option wan_prefix 'fd00:1111:2222:f000::/64'
+	option default '1'
 
 config interface 'tb6'
 	option enabled '1'
 	option wan_prefix 'fd00:aaaa:bbbb:14f::/64'
-	option default '1'
+	option default '0'
 
 config interface 'tb62'
 	option enabled '1'
@@ -76,15 +76,12 @@ config interface 'tb62'
 
 ### Options
 
-**globals section:**
-- `enabled`: Enable/disable the service (0/1)
-- `lan_prefix`: Your LAN IPv6 prefix (/64)
-- `auto_reload`: Auto-reload firewall on changes (0/1)
-
 **interface section:**
 - `enabled`: Enable this interface (0/1)
-- `wan_prefix`: WAN IPv6 prefix for this interface (/64)
-- `default`: Mark as default interface for traffic (only one should have `1`)
+- `wan_prefix`: IPv6 prefix for this interface (/64)
+- `default`: Mark as LAN/default interface (only one should have `1`)
+  - The default interface provides the LAN prefix for NPTv6 translation
+  - All other interfaces translate to/from this prefix
 
 ## Usage
 
@@ -107,19 +104,16 @@ config interface 'tb62'
 ### UCI Commands
 
 ```bash
-# Set LAN prefix (ULA example for testing)
-uci set mwan6-npt.globals.lan_prefix='fd00:1111:2222:f000::/64'
-
-# Add new interface
+# Add new WAN interface
 uci add mwan6-npt interface
 uci set mwan6-npt.@interface[-1].name='tb64'
 uci set mwan6-npt.@interface[-1].wan_prefix='fd00:eeee:ffff:1f5::/64'
 uci set mwan6-npt.@interface[-1].enabled='1'
 uci set mwan6-npt.@interface[-1].default='0'
 
-# Switch default interface
-uci set mwan6-npt.tb6.default='0'
-uci set mwan6-npt.tb64.default='1'
+# Switch default (LAN) interface
+uci set mwan6-npt.lan.default='0'
+uci set mwan6-npt.tb6.default='1'
 
 # Commit and reload
 uci commit mwan6-npt
@@ -161,7 +155,7 @@ fw4 reload → nftables rules active
 For testing on `openwrt-dev`, use ULA prefixes (fd00::/8):
 
 ```bash
-# LAN prefix (ULA)
+# LAN prefix (ULA) - from default interface
 fd00:1111:2222:f000::/64
 
 # WAN prefixes (ULA)

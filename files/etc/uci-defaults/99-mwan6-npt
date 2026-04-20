@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Enable service on first install
+/etc/init.d/mwan6-npt enable
+
+# Initial rules generation
+/usr/sbin/mwan6-npt update
+
+exit 0

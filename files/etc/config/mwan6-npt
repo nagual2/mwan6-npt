@@ -1,0 +1,19 @@
+config globals 'globals'
+	option enabled '1'
+	option lan_prefix 'fd00:1111:2222:f000::/64'
+	option auto_reload '1'
+
+config interface 'tb6'
+	option enabled '1'
+	option wan_prefix 'fd00:aaaa:bbbb:14f::/64'
+	option default '1'
+
+config interface 'tb62'
+	option enabled '1'
+	option wan_prefix 'fd00:aaaa:bbbb:1b8::/64'
+	option default '0'
+
+config interface 'tb63'
+	option enabled '1'
+	option wan_prefix 'fd00:cccc:dddd:1f4::/64'
+	option default '0'

@@ -17,7 +17,6 @@ log() {
 
 find_lan_prefix() {
     local cfg="$1"
-    local iface="$cfg"
     local enabled=""
     local wan_prefix=""
     local is_default=""
@@ -31,7 +30,7 @@ find_lan_prefix() {
     [ -n "$wan_prefix" ] || return 0
     
     LAN_PREFIX="$wan_prefix"
-    LAN_IFACE="$iface"
+    LAN_IFACE="$cfg"
 }
 
 load_config() {
@@ -65,7 +64,6 @@ generate_rules() {
     
     process_interface() {
         local cfg="$1"
-        local iface="$cfg"
         local is_default=""
         
         config_get enabled "$cfg" enabled 0
@@ -79,18 +77,18 @@ generate_rules() {
         [ "$is_default" -eq 1 ] && return 0
         
         # Check if interface exists and is UP
-        if ip link show "$iface" 2>/dev/null | grep -q "LOWER_UP\|state UP"; then
-            log "Active interface: $iface -> $wan_prefix"
+        if ip link show "$cfg" 2>/dev/null | grep -q "LOWER_UP\|state UP"; then
+            log "Active interface: $cfg -> $wan_prefix"
             
             # SNAT: outgoing from LAN to WAN
-            echo "oifname \"$iface\" ip6 saddr $LAN_PREFIX snat prefix to $wan_prefix;" >> "$SRCNAT_FILE"
+            echo "oifname \"$cfg\" ip6 saddr $LAN_PREFIX snat prefix to $wan_prefix;" >> "$SRCNAT_FILE"
             
             # DNAT: incoming from WAN to LAN
-            echo "iifname \"$iface\" ip6 daddr $wan_prefix dnat prefix to $LAN_PREFIX;" >> "$DSTNAT_FILE"
+            echo "iifname \"$cfg\" ip6 daddr $wan_prefix dnat prefix to $LAN_PREFIX;" >> "$DSTNAT_FILE"
             
             active_count=$((active_count + 1))
         else
-            log "Interface $iface is down or not found"
+            log "Interface $cfg is down or not found"
         fi
     }
     
@@ -123,7 +121,7 @@ show_status() {
     
     echo "=== mwan6-npt Status ==="
     echo "LAN prefix (default): $LAN_PREFIX"
-    echo "LAN interface: $LAN_IFACE"
+    echo "LAN interface: ${LAN_IFACE:-(not set)}"
     echo ""
     echo "Active SNAT rules (srcnat):"
     nft list chain inet fw4 srcnat 2>/dev/null | grep -E "snat prefix" || echo "  (none)"

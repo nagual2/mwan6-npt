@@ -17,6 +17,7 @@ log() {
 
 find_lan_prefix() {
     local cfg="$1"
+    local iface="$cfg"
     local enabled=""
     local wan_prefix=""
     local is_default=""
@@ -30,11 +31,13 @@ find_lan_prefix() {
     [ -n "$wan_prefix" ] || return 0
     
     LAN_PREFIX="$wan_prefix"
+    LAN_IFACE="$iface"
 }
 
 load_config() {
     config_load "$CONFIG"
     LAN_PREFIX=""
+    LAN_IFACE=""
     config_foreach find_lan_prefix interface
 }
 
@@ -58,11 +61,11 @@ generate_rules() {
     > "$SRCNAT_FILE"
     > "$DSTNAT_FILE"
     
-    log "Generating NPTv6 rules for LAN prefix $LAN_PREFIX"
+    log "Generating NPTv6 rules for LAN prefix $LAN_PREFIX (interface: $LAN_IFACE)"
     
     process_interface() {
         local cfg="$1"
-        local iface="$2"
+        local iface="$cfg"
         local is_default=""
         
         config_get enabled "$cfg" enabled 0
@@ -120,6 +123,7 @@ show_status() {
     
     echo "=== mwan6-npt Status ==="
     echo "LAN prefix (default): $LAN_PREFIX"
+    echo "LAN interface: $LAN_IFACE"
     echo ""
     echo "Active SNAT rules (srcnat):"
     nft list chain inet fw4 srcnat 2>/dev/null | grep -E "snat prefix" || echo "  (none)"

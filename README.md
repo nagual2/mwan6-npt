@@ -19,7 +19,37 @@ mwan6-npt automatically manages IPv6 prefix translation rules for active tunnels
 
 ## Installation
 
-### Build from Source
+### Install from IPK (Recommended)
+
+Download the latest `.ipk` package from [Releases](https://github.com/nagual2/mwan6-npt/releases) and install:
+
+```bash
+# Download to router
+wget https://github.com/nagual2/mwan6-npt/releases/download/v1.0.0/mwan6-npt_1.0.0-1_all.ipk -O /tmp/mwan6-npt.ipk
+
+# Install with opkg
+opkg install /tmp/mwan6-npt.ipk
+
+# Enable and start service
+/etc/init.d/mwan6-npt enable
+/etc/init.d/mwan6-npt start
+```
+
+### Build IPK from Source
+
+```bash
+# Clone repository
+git clone https://github.com/nagual2/mwan6-npt.git
+cd mwan6-npt
+
+# Build package (requires make and ar)
+make -f Makefile.build ipk
+
+# Copy to router
+scp dist/mwan6-npt_*.ipk root@openwrt:/tmp/
+```
+
+### Build from OpenWrt SDK
 
 ```bash
 cd $TOPDIR/package

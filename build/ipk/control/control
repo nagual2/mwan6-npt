@@ -1,0 +1,8 @@
+Package: mwan6-npt
+Version: 1.0.0-1
+Architecture: all
+Section: net
+Priority: optional
+Maintainer: OpenWrt Community
+Depends: +nftables +ip-full
+Description: NPTv6 (Network Prefix Translation) support for multiple IPv6 WAN interfaces on OpenWrt.

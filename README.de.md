@@ -19,7 +19,37 @@ mwan6-npt verwaltet automatisch IPv6-Präfix-Übersetzungsregeln für aktive Tun
 
 ## Installation
 
-### Aus Quellen bauen
+### Installation aus IPK (Empfohlen)
+
+Laden Sie das neueste `.ipk`-Paket von [Releases](https://github.com/nagual2/mwan6-npt/releases) herunter und installieren Sie es:
+
+```bash
+# Auf den Router herunterladen
+wget https://github.com/nagual2/mwan6-npt/releases/download/v1.0.0/mwan6-npt_1.0.0-1_all.ipk -O /tmp/mwan6-npt.ipk
+
+# Mit opkg installieren
+opkg install /tmp/mwan6-npt.ipk
+
+# Service aktivieren und starten
+/etc/init.d/mwan6-npt enable
+/etc/init.d/mwan6-npt start
+```
+
+### IPK aus Quellen bauen
+
+```bash
+# Repository klonen
+git clone https://github.com/nagual2/mwan6-npt.git
+cd mwan6-npt
+
+# Paket bauen (erfordert make und ar)
+make -f Makefile.build ipk
+
+# Auf den Router kopieren
+scp dist/mwan6-npt_*.ipk root@openwrt:/tmp/
+```
+
+### Aus OpenWrt SDK bauen
 
 ```bash
 cd $TOPDIR/package

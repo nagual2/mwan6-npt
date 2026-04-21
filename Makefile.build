@@ -1,0 +1,73 @@
+SHELL := /bin/sh
+.RECIPEPREFIX := >
+
+PKG_NAME := mwan6-npt
+PROJECT_VERSION ?=
+GIT_TAG := $(strip $(shell git describe --tags --match 'v*' --abbrev=0 2>/dev/null || true))
+PKG_VERSION := $(strip $(if $(PROJECT_VERSION),$(PROJECT_VERSION),$(if $(GIT_TAG),$(patsubst v%,%,$(GIT_TAG)),0.0.0)))
+PKG_RELEASE ?= 1
+
+OUTPUT_DIR ?= dist
+WORK_DIR := build/ipk
+DATA_DIR := $(WORK_DIR)/data
+CONTROL_DIR := $(WORK_DIR)/control
+
+IPK_FILENAME := $(PKG_NAME)_$(PKG_VERSION)-$(PKG_RELEASE)_all.ipk
+IPK_PATH := $(OUTPUT_DIR)/$(IPK_FILENAME)
+
+.PHONY: all ipk clean install test
+
+all: ipk
+
+test:
+> @if [ -d tests ]; then \
+>     echo "Running tests..."; \
+>     cd tests && ./run_tests.sh; \
+> else \
+>     echo "tests/ directory not found. Skipping."; \
+> fi
+
+ipk: $(IPK_PATH)
+
+$(IPK_PATH): files/etc/config/mwan6-npt files/etc/init.d/mwan6-npt files/etc/hotplug.d/iface/25-mwan6-npt files/etc/uci-defaults/99-mwan6-npt files/usr/sbin/mwan6-npt files/usr/share/mwan6-npt/functions.sh
+> @echo "Building IPK package $(PKG_NAME)..."
+> rm -rf $(WORK_DIR)
+> mkdir -p $(DATA_DIR)/etc/config
+> mkdir -p $(DATA_DIR)/etc/init.d
+> mkdir -p $(DATA_DIR)/etc/hotplug.d/iface
+> mkdir -p $(DATA_DIR)/etc/uci-defaults
+> mkdir -p $(DATA_DIR)/usr/sbin
+> mkdir -p $(DATA_DIR)/usr/share/mwan6-npt
+> install -m 0644 files/etc/config/mwan6-npt $(DATA_DIR)/etc/config/mwan6-npt
+> install -m 0755 files/etc/init.d/mwan6-npt $(DATA_DIR)/etc/init.d/mwan6-npt
+> install -m 0755 files/etc/hotplug.d/iface/25-mwan6-npt $(DATA_DIR)/etc/hotplug.d/iface/25-mwan6-npt
+> install -m 0755 files/etc/uci-defaults/99-mwan6-npt $(DATA_DIR)/etc/uci-defaults/99-mwan6-npt
+> install -m 0755 files/usr/sbin/mwan6-npt $(DATA_DIR)/usr/sbin/mwan6-npt
+> install -m 0644 files/usr/share/mwan6-npt/functions.sh $(DATA_DIR)/usr/share/mwan6-npt/functions.sh
+> mkdir -p $(CONTROL_DIR)
+> printf 'Package: %s\n' $(PKG_NAME) > $(CONTROL_DIR)/control
+> printf 'Version: %s-%s\n' $(PKG_VERSION) $(PKG_RELEASE) >> $(CONTROL_DIR)/control
+> printf 'Architecture: all\n' >> $(CONTROL_DIR)/control
+> printf 'Section: net\n' >> $(CONTROL_DIR)/control
+> printf 'Priority: optional\n' >> $(CONTROL_DIR)/control
+> printf 'Maintainer: OpenWrt Community\n' >> $(CONTROL_DIR)/control
+> printf 'Depends: +nftables +ip-full\n' >> $(CONTROL_DIR)/control
+> printf 'Description: NPTv6 (Network Prefix Translation) support for multiple IPv6 WAN interfaces on OpenWrt.\n' >> $(CONTROL_DIR)/control
+> tar -C $(DATA_DIR) -czf $(WORK_DIR)/data.tar.gz .
+> tar -C $(CONTROL_DIR) -czf $(WORK_DIR)/control.tar.gz .
+> printf '2.0\n' > $(WORK_DIR)/debian-binary
+> mkdir -p $(OUTPUT_DIR)
+> rm -f $(IPK_PATH)
+> (cd $(WORK_DIR) && ar rcs $(abspath $(IPK_PATH)) debian-binary control.tar.gz data.tar.gz)
+> @echo "Package built: $(IPK_PATH)"
+
+clean:
+> rm -rf $(WORK_DIR) $(OUTPUT_DIR)
+
+install: $(IPK_PATH)
+> @if command -v opkg >/dev/null 2>&1; then \
+>     opkg install $(IPK_PATH); \
+> else \
+>     echo "Package built at $(IPK_PATH). Copy it to the router and run:"; \
+>     echo "  opkg install $(IPK_FILENAME)"; \
+> fi

@@ -1,0 +1,17 @@
+#!/bin/sh
+# mwan6-npt hotplug trigger
+# Regenerates NPTv6 rules when monitored interfaces change state
+# Rules are stored in /usr/share/nftables.d/chain-post/ for fw4 persistence
+
+[ "$ACTION" = "ifup" ] || [ "$ACTION" = "ifdown" ] || exit 0
+
+# Only act on interfaces managed by mwan6-npt
+config_load mwan6-npt
+
+local iface_enabled
+config_get_bool iface_enabled "$DEVICE" enabled 0
+
+[ "$iface_enabled" -eq 1 ] || exit 0
+
+logger -t mwan6-npt "Interface $DEVICE $ACTION, regenerating rules"
+/usr/sbin/mwan6-npt update

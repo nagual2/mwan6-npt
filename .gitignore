@@ -1,0 +1,9 @@
+# Stale unpack dirs from manual IPK inspection
+build/ipk/etc/
+build/ipk/usr/
+build/ipk/data/
+
+# Editor / OS
+*~
+.DS_Store
+Thumbs.db

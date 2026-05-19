@@ -1,25 +1,33 @@
 name: Build IPK
 
+# CI runs on GitHub-hosted Ubuntu. Steps use JavaScript-based Actions (checkout,
+# upload-artifact) — that is GitHub's runner stack, not a Node dependency of mwan6-npt.
+# The package itself is shell + make only.
+
 on:
   push:
-    branches: [ main ]
-    tags: [ 'v*' ]
+    branches: [main]
+    tags: ['v*']
   pull_request:
-    branches: [ main ]
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    branches: [main]
 
 jobs:
   build-ipk:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Build IPK package
         run: |
-          make -f Makefile.build ipk
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            ver="${GITHUB_REF_NAME#v}"
+            make -f Makefile.build ipk PROJECT_VERSION="$ver"
+          else
+            make -f Makefile.build ipk
+          fi
           ls -la dist/
 
       - name: Upload artifact
@@ -29,9 +37,27 @@ jobs:
           path: dist/*.ipk
           retention-days: 30
 
-      - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/v')
+  # Optional: attach IPK to an existing GitHub Release when a version tag is pushed.
+  # Create the release (title/notes) manually or via `gh release create`; this job only uploads the file.
+  release:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: build-ipk
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build IPK package
+        run: |
+          ver="${GITHUB_REF_NAME#v}"
+          make -f Makefile.build ipk PROJECT_VERSION="$ver"
+          ls -la dist/
+
+      - name: Upload IPK to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*.ipk
-          generate_release_notes: true
+          overwrite_files: true
+          # Do not call generate_release_notes — needs extra API scope and fails with default token

@@ -36,6 +36,8 @@ opkg install /tmp/mwan6-npt.ipk
 
 После установки проверьте `/etc/config/mwan6-npt`, затем выполните `reload` сервиса:
 
+При **первой установке** пакет создаёт только секцию `lan` (источник NPT), сервис **выключен** (`globals.enabled=0`). LAN-префикс определяется автоматически из `network` (единственный `ip6prefix` или делегирование на `lan`). WAN-туннели добавляются через LuCI (**luci-app-mwan6-npt**) или вручную в UCI — префиксы WAN **не записываются** в `network`, только используются для NPT.
+
 ```bash
 # Сначала проверьте конфигурацию
 vi /etc/config/mwan6-npt
@@ -102,23 +104,20 @@ ssh root@openwrt '
 
 ```uci
 config globals 'globals'
-	option enabled '1'
+	option enabled '0'
 
 config interface 'lan'
 	option enabled '1'
-	option wan_prefix 'fd00:1111:2222:f000::/64'
+	option wan_prefix '2001:db8::/56'
 	option default '1'
-
-config interface 'tb6'
-	option enabled '1'
-	option wan_prefix 'fd00:aaaa:bbbb:14f::/64'
-	option default '0'
 
 config interface 'tb62'
 	option enabled '1'
-	option wan_prefix 'fd00:aaaa:bbbb:1b8::/64'
+	option wan_prefix '2001:db8:1::/56'
 	option default '0'
 ```
+
+Секция `lan` создаётся при установке; WAN-секции (например `tb62`) добавляются администратором через LuCI или UCI.
 
 ### Опции
 

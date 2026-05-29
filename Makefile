@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mwan6-npt
-PKG_VERSION:=1.0.1
-PKG_RELEASE:=2
+PKG_VERSION:=1.1.0
+PKG_RELEASE:=1
 
 PKG_MAINTAINER:=OpenWrt Community
 PKG_LICENSE:=GPL-2.0
@@ -56,6 +56,8 @@ define Package/mwan6-npt/install
 	
 	$(INSTALL_DIR) $(1)/usr/share/mwan6-npt
 	$(INSTALL_DATA) ./files/usr/share/mwan6-npt/functions.sh $(1)/usr/share/mwan6-npt/
+	$(INSTALL_BIN) ./files/usr/share/mwan6-npt/detect-lan-prefix.sh $(1)/usr/share/mwan6-npt/
+	$(INSTALL_BIN) ./files/usr/share/mwan6-npt/detect-wan-prefix.sh $(1)/usr/share/mwan6-npt/
 endef
 
 $(eval $(call BuildPackage,mwan6-npt))

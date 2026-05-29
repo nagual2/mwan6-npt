@@ -114,8 +114,7 @@ generate_rules() {
     log "Generated rules for $active_count active interfaces"
     
     if [ $active_count -eq 0 ]; then
-        log "Warning: No active interfaces found"
-        return 1
+        log "Warning: No WAN interfaces configured for NPT (LAN source only)"
     fi
     
     return 0

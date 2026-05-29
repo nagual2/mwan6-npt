@@ -1,9 +1,28 @@
 #!/bin/sh
+# First-boot setup: LAN-only mwan6-npt config, auto-detect LAN prefix, service disabled.
 
-# Enable service on first install
+[ -f /etc/config/mwan6-npt ] || exit 0
+
+uci -q get mwan6-npt.globals >/dev/null 2>&1 || {
+	uci set mwan6-npt.globals='globals'
+	uci set mwan6-npt.globals.enabled='0'
+}
+
+uci -q get mwan6-npt.lan >/dev/null 2>&1 || {
+	uci set mwan6-npt.lan='interface'
+}
+
+uci set mwan6-npt.lan.enabled='1'
+uci set mwan6-npt.lan.default='1'
+
+current_prefix=$(uci -q get mwan6-npt.lan.wan_prefix 2>/dev/null)
+if [ -z "$current_prefix" ] && [ -x /usr/share/mwan6-npt/detect-lan-prefix.sh ]; then
+	detected=$(/usr/share/mwan6-npt/detect-lan-prefix.sh)
+	[ -n "$detected" ] && uci set mwan6-npt.lan.wan_prefix="$detected"
+fi
+
+uci commit mwan6-npt
+
 /etc/init.d/mwan6-npt enable
-
-# Initial rules generation
-/usr/sbin/mwan6-npt update
 
 exit 0

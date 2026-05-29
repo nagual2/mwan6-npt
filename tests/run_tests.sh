@@ -177,20 +177,24 @@ test_generate_rules() {
 test_interface_filtering() {
     log_info "Test: Interface filtering (enabled/disabled)"
     
-    # Count enabled interfaces in test config
+    # Count enabled interface sections only (skip globals)
     local enabled_count=0
     local disabled_count=0
-    
+    local in_interface=0
+
     while read -r line; do
         case "$line" in
             *"config interface"*)
-                current_iface="$line"
+                in_interface=1
                 ;;
-            *"option enabled '1'")
-                enabled_count=$((enabled_count + 1))
+            *"config "*)
+                in_interface=0
                 ;;
-            *"option enabled '0'")
-                disabled_count=$((disabled_count + 1))
+            *"option enabled '1'"*)
+                [ "$in_interface" -eq 1 ] && enabled_count=$((enabled_count + 1))
+                ;;
+            *"option enabled '0'"*)
+                [ "$in_interface" -eq 1 ] && disabled_count=$((disabled_count + 1))
                 ;;
         esac
     done < "$TEST_CONFIG/mwan6-npt"
@@ -263,6 +267,11 @@ main() {
     test_rule_paths
     test_generate_rules
     test_interface_state_check
+    
+    if [ -x "$SCRIPT_DIR/test_detect_lan_prefix.sh" ]; then
+        log_info "Running detect-lan-prefix tests..."
+        bash "$SCRIPT_DIR/test_detect_lan_prefix.sh" || failed=$((failed + 1))
+    fi
     
     teardown
     

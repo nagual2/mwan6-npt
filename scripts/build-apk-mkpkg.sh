@@ -77,7 +77,7 @@ log "Creating $OUT_APK"
 	--info "arch:all" \
 	--info "license:GPL-2.0" \
 	--info "maintainer:OpenWrt Community" \
-	--info "depends:nftables-json ip-full" \
+	--info "depends:nftables-json ip" \
 	--info "description:NPTv6 Multi-WAN for OpenWrt" \
 	--script "post-install:$POSTINST" \
 	--output "$OUT_APK"

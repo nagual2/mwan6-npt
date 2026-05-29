@@ -15,9 +15,13 @@ CONTROL_DIR := $(WORK_DIR)/control
 IPK_FILENAME := $(PKG_NAME)_$(PKG_VERSION)-$(PKG_RELEASE)_all.ipk
 IPK_PATH := $(OUTPUT_DIR)/$(IPK_FILENAME)
 
-.PHONY: all ipk clean install test
+.PHONY: all ipk apk clean install test
 
-all: ipk
+all: ipk apk
+
+apk:
+> @chmod +x scripts/build-apk-mkpkg.sh
+> PROJECT_VERSION="$(PKG_VERSION)" PKG_RELEASE="$(PKG_RELEASE)" ./scripts/build-apk-mkpkg.sh
 
 test:
 > @if [ -d tests ]; then \

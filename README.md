@@ -19,19 +19,18 @@ mwan6-npt automatically manages IPv6 prefix translation rules for active tunnels
 
 ## Installation
 
-### Install from IPK (Recommended)
+### Install from release packages
 
-Download the latest `.ipk` package from [Releases](https://github.com/nagual2/mwan6-npt/releases) and install:
+Download from [Releases](https://github.com/nagual2/mwan6-npt/releases):
 
 ```bash
-# Download to router
-wget https://github.com/nagual2/mwan6-npt/releases/download/v1.0.1/mwan6-npt_1.0.1-2_all.ipk -O /tmp/mwan6-npt.ipk
-
 # OpenWrt 23.x (opkg)
+wget https://github.com/nagual2/mwan6-npt/releases/download/v1.0.2/mwan6-npt_1.0.2-1_all.ipk -O /tmp/mwan6-npt.ipk
 opkg install /tmp/mwan6-npt.ipk
 
-# OpenWrt 25.x (apk): standalone .ipk is not accepted; use tarball install from source:
-# make -f Makefile.build ipk && scripts/install-tarball.sh 192.168.1.1
+# OpenWrt 25.12+ (apk)
+wget https://github.com/nagual2/mwan6-npt/releases/download/v1.0.2/mwan6-npt-1.0.2-r1.apk -O /tmp/mwan6-npt.apk
+apk add --allow-untrusted /tmp/mwan6-npt.apk
 ```
 
 After installation, review `/etc/config/mwan6-npt`, then reload the service:

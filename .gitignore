@@ -3,6 +3,12 @@ build/ipk/etc/
 build/ipk/usr/
 build/ipk/data/
 
+# SDK / local build artifacts
+build/sdk/
+build/*.tar.zst
+dist/
+*.apk
+
 # Editor / OS
 *~
 .DS_Store

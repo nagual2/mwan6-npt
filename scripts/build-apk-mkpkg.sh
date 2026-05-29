@@ -74,7 +74,7 @@ log "Creating $OUT_APK"
 	--files "$STAGE" \
 	--info "name:mwan6-npt" \
 	--info "version:${PKG_VERSION}" \
-	--info "arch:all" \
+	--info "arch:noarch" \
 	--info "license:GPL-2.0" \
 	--info "maintainer:OpenWrt Community" \
 	--info "depends:nftables-json ip" \

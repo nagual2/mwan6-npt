@@ -1,18 +1,19 @@
 #
 # Copyright (C) 2025 OpenWrt.org
 #
-# This is free software, licensed under the GNU General Public License v2.
+# This is free software, licensed under the Apache License, Version 2.0 (same as LuCI).
 # See /LICENSE for more information.
 #
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mwan6-npt
-PKG_VERSION:=1.1.0
+PKG_VERSION:=1.1.1
 PKG_RELEASE:=1
 
 PKG_MAINTAINER:=OpenWrt Community
-PKG_LICENSE:=GPL-2.0
+PKG_LICENSE:=Apache-2.0
+PKG_LICENSE_FILES:=LICENSE NOTICE
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -58,6 +59,13 @@ define Package/mwan6-npt/install
 	$(INSTALL_DATA) ./files/usr/share/mwan6-npt/functions.sh $(1)/usr/share/mwan6-npt/
 	$(INSTALL_BIN) ./files/usr/share/mwan6-npt/detect-lan-prefix.sh $(1)/usr/share/mwan6-npt/
 	$(INSTALL_BIN) ./files/usr/share/mwan6-npt/detect-wan-prefix.sh $(1)/usr/share/mwan6-npt/
+
+	$(INSTALL_DIR) $(1)/usr/share/doc/mwan6-npt
+	$(INSTALL_DATA) ./LICENSE $(1)/usr/share/doc/mwan6-npt/
+	$(INSTALL_DATA) ./NOTICE $(1)/usr/share/doc/mwan6-npt/
+	$(INSTALL_DATA) ./README.md $(1)/usr/share/doc/mwan6-npt/README.en.md
+	$(INSTALL_DATA) ./README.ru.md $(1)/usr/share/doc/mwan6-npt/
+	$(INSTALL_DATA) ./README.de.md $(1)/usr/share/doc/mwan6-npt/
 endef
 
 $(eval $(call BuildPackage,mwan6-npt))

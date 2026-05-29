@@ -15,7 +15,8 @@ mwan6-npt automatically manages IPv6 prefix translation rules for active tunnels
 - **procd Support**: Proper init script with service triggers
 - **nftables/fw4 Compatible**: Uses OpenWrt 22.03+ firewall system
 - **Multiple WAN Support**: Configure multiple interfaces with different prefixes
-- **LAN Prefix Source**: Mark one interface as the source LAN prefix for NPTv6 translation
+- **Prefix detection**: `detect-lan-prefix.sh` and `detect-wan-prefix.sh` helpers for LuCI/CLI
+- **LAN-only first install**: Default UCI contains only `lan`; service disabled until configured
 
 ## Installation
 
@@ -25,15 +26,15 @@ Download from [Releases](https://github.com/nagual2/mwan6-npt/releases):
 
 ```bash
 # OpenWrt 23.x (opkg)
-wget https://github.com/nagual2/mwan6-npt/releases/download/v1.0.2/mwan6-npt_1.0.2-1_all.ipk -O /tmp/mwan6-npt.ipk
+wget https://github.com/nagual2/mwan6-npt/releases/download/v1.1.1/mwan6-npt_1.1.1-1_all.ipk -O /tmp/mwan6-npt.ipk
 opkg install /tmp/mwan6-npt.ipk
 
 # OpenWrt 25.12+ (apk)
-wget https://github.com/nagual2/mwan6-npt/releases/download/v1.0.2/mwan6-npt-1.0.2-r1.apk -O /tmp/mwan6-npt.apk
+wget https://github.com/nagual2/mwan6-npt/releases/download/v1.1.1/mwan6-npt-1.1.1-r1.apk -O /tmp/mwan6-npt.apk
 apk add --allow-untrusted /tmp/mwan6-npt.apk
 ```
 
-After installation, review `/etc/config/mwan6-npt`, then reload the service:
+On **first install** the package creates only the `lan` section (NPT source), service **disabled** (`globals.enabled=0`). LAN prefix is auto-detected from `network` (single `ip6prefix` or delegation on `lan`). WAN tunnels are added via **luci-app-mwan6-npt** or manual UCI — WAN prefixes are **not** written to `network`, only used for NPT.
 
 ```bash
 # Review configuration first
@@ -101,23 +102,20 @@ Edit `/etc/config/mwan6-npt`:
 
 ```uci
 config globals 'globals'
-	option enabled '1'
+	option enabled '0'
 
 config interface 'lan'
 	option enabled '1'
-	option wan_prefix 'fd00:1111:2222:f000::/64'
+	option wan_prefix '2001:db8::/56'
 	option default '1'
-
-config interface 'tb6'
-	option enabled '1'
-	option wan_prefix 'fd00:aaaa:bbbb:14f::/64'
-	option default '0'
 
 config interface 'tb62'
 	option enabled '1'
-	option wan_prefix 'fd00:aaaa:bbbb:1b8::/64'
+	option wan_prefix '2001:db8:1::/56'
 	option default '0'
 ```
+
+The `lan` section is created on install; WAN sections (e.g. `tb62`) are added by the administrator via LuCI or UCI.
 
 ### Options
 
@@ -251,9 +249,19 @@ ULA addresses don't require real IPv6 connectivity and are safe for lab testing.
 - `nftables` package
 - `ip-full` package
 
+## Documentation
+
+Trilingual README files are installed with the package under `/usr/share/doc/mwan6-npt/`:
+
+| File | Language |
+|------|----------|
+| `README.en.md` | English |
+| `README.ru.md` | Russian |
+| `README.de.md` | German |
+
 ## License
 
-GPL-2.0
+Apache-2.0 (same license as [LuCI](https://github.com/openwrt/luci)). See `LICENSE` and `NOTICE` in the repository and in `/usr/share/doc/mwan6-npt/` on the router.
 
 ## Author
 

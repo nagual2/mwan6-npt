@@ -1,0 +1,9 @@
+mwan6-npt - NPTv6 Multi-WAN for OpenWrt
+Copyright 2026 OpenWrt Community
+
+Licensed under the Apache License, Version 2.0 (same terms as LuCI).
+
+LuCI - Lua Configuration Interface
+Copyright 2008 Steven Barth <steven@midlink.org>
+Copyright 2008 Jo-Philipp Wich <jow@openwrt.org>
+Licensed under the Apache License, Version 2.0.

@@ -25,7 +25,7 @@ Laden Sie das neueste `.ipk`-Paket von [Releases](https://github.com/nagual2/mwa
 
 ```bash
 # Auf den Router herunterladen
-wget https://github.com/nagual2/mwan6-npt/releases/download/v1.0.1/mwan6-npt_1.0.1-2_all.ipk -O /tmp/mwan6-npt.ipk
+wget https://github.com/nagual2/mwan6-npt/releases/download/v1.1.1/mwan6-npt_1.1.1-1_all.ipk -O /tmp/mwan6-npt.ipk
 
 # OpenWrt 23.x (opkg)
 opkg install /tmp/mwan6-npt.ipk
@@ -252,9 +252,13 @@ ULA-Adressen erfordern keine echte IPv6-Konnektivität und sind sicher für Labo
 - Paket `nftables`
 - Paket `ip-full`
 
+## Dokumentation
+
+Dreisprachige README-Dateien werden unter `/usr/share/doc/mwan6-npt/` installiert (`README.en.md`, `README.ru.md`, `README.de.md`).
+
 ## Lizenz
 
-GPL-2.0
+Apache-2.0 (wie [LuCI](https://github.com/openwrt/luci)). Siehe `LICENSE` und `NOTICE` im Repository und auf dem Router.
 
 ## Autor
 

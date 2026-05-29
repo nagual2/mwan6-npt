@@ -8,8 +8,8 @@ SDK_DIR="${SDK_DIR:-$ROOT/build/sdk}"
 APK_TOOL="${APK_TOOL:-$SDK_DIR/staging_dir/host/bin/apk}"
 
 PROJECT_VERSION="${PROJECT_VERSION:-$(git -C "$ROOT" describe --tags --match 'v*' 2>/dev/null | sed 's/^v//')}"
-PROJECT_VERSION="${PROJECT_VERSION:-1.0.1}"
-PKG_RELEASE="${PKG_RELEASE:-2}"
+PROJECT_VERSION="${PROJECT_VERSION:-1.1.1}"
+PKG_RELEASE="${PKG_RELEASE:-1}"
 PKG_VERSION="${PROJECT_VERSION}-r${PKG_RELEASE}"
 
 log() { printf '[build-apk-mkpkg] %s\n' "$*"; }
@@ -59,6 +59,9 @@ install -m 0644 "$ROOT/files/usr/share/mwan6-npt/functions.sh" "$STAGE/usr/share
 install -m 0755 "$ROOT/files/usr/share/mwan6-npt/detect-lan-prefix.sh" "$STAGE/usr/share/mwan6-npt/"
 install -m 0755 "$ROOT/files/usr/share/mwan6-npt/detect-wan-prefix.sh" "$STAGE/usr/share/mwan6-npt/"
 
+chmod +x "$ROOT/scripts/stage-docs.sh"
+"$ROOT/scripts/stage-docs.sh" "$STAGE" mwan6-npt
+
 cat >"$POSTINST" <<'EOF'
 #!/bin/sh
 [ -n "${IPKG_INSTROOT}" ] && exit 0
@@ -77,7 +80,7 @@ log "Creating $OUT_APK"
 	--info "name:mwan6-npt" \
 	--info "version:${PKG_VERSION}" \
 	--info "arch:noarch" \
-	--info "license:GPL-2.0" \
+	--info "license:Apache-2.0" \
 	--info "maintainer:OpenWrt Community" \
 	--info "depends:nftables-json ip" \
 	--info "description:NPTv6 Multi-WAN for OpenWrt" \

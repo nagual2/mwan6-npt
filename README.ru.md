@@ -25,7 +25,7 @@ mwan6-npt автоматически управляет правилами тр�
 
 ```bash
 # Скачать на роутер
-wget https://github.com/nagual2/mwan6-npt/releases/download/v1.0.1/mwan6-npt_1.0.1-2_all.ipk -O /tmp/mwan6-npt.ipk
+wget https://github.com/nagual2/mwan6-npt/releases/download/v1.1.1/mwan6-npt_1.1.1-1_all.ipk -O /tmp/mwan6-npt.ipk
 
 # OpenWrt 23.x (opkg)
 opkg install /tmp/mwan6-npt.ipk
@@ -251,9 +251,13 @@ ULA-адреса не требуют реального IPv6-соединени�
 - Пакет `nftables`
 - Пакет `ip-full`
 
+## Документация
+
+Триязычные README устанавливаются в `/usr/share/doc/mwan6-npt/` (`README.en.md`, `README.ru.md`, `README.de.md`).
+
 ## Лицензия
 
-GPL-2.0
+Apache-2.0 (как у [LuCI](https://github.com/openwrt/luci)). См. `LICENSE` и `NOTICE` в репозитории и на роутере.
 
 ## Автор
 

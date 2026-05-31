@@ -20,15 +20,15 @@ find_lan_prefix() {
     local enabled=""
     local wan_prefix=""
     local is_default=""
-    
+
     config_get enabled "$cfg" enabled 0
     config_get wan_prefix "$cfg" wan_prefix ""
     config_get is_default "$cfg" default 0
-    
-    [ "$enabled" -eq 1 ] || return 0
-    [ "$is_default" -eq 1 ] || return 0
+
+    mwan6_npt_is_true "$enabled" || return 0
+    mwan6_npt_is_true "$is_default" || return 0
     [ -n "$wan_prefix" ] || return 0
-    
+
     LAN_PREFIX="$wan_prefix"
     LAN_IFACE="$cfg"
 }
@@ -45,9 +45,9 @@ generate_rules() {
     local wan_prefix=""
     local active_count=0
     local validation_failed=0
-    
+
     load_config
-    
+
     [ -n "$LAN_PREFIX" ] || {
         log "Error: No default interface configured"
         return 1
@@ -57,26 +57,26 @@ generate_rules() {
         log "Error: Invalid LAN prefix: $LAN_PREFIX (expected format like 2001:db8::/56)"
         return 1
     fi
-    
-    # Ensure directories exist
+
     mkdir -p "${CHAIN_POST_DIR}/srcnat"
     mkdir -p "${CHAIN_POST_DIR}/dstnat"
-    
-    # Clear old rules
+
     > "$SRCNAT_FILE"
     > "$DSTNAT_FILE"
-    
+
     log "Generating NPTv6 rules for LAN prefix $LAN_PREFIX (interface: $LAN_IFACE)"
-    
+
     process_interface() {
         local cfg="$1"
         local is_default=""
-        
+        local dev=""
+        local logical="$cfg"
+
         config_get enabled "$cfg" enabled 0
         config_get wan_prefix "$cfg" wan_prefix ""
         config_get is_default "$cfg" default 0
-        
-        [ "$enabled" -eq 1 ] || return 0
+
+        mwan6_npt_is_true "$enabled" || return 0
         [ -n "$wan_prefix" ] || return 0
 
         if ! mwan6_npt_validate_prefix "$wan_prefix"; then
@@ -84,46 +84,43 @@ generate_rules() {
             validation_failed=1
             return 0
         fi
-        
-        # Skip default interface (LAN side)
-        [ "$is_default" -eq 1 ] && return 0
-        
-        # Check if interface exists and is UP
-        if ip link show "$cfg" 2>/dev/null | grep -q "LOWER_UP\|state UP"; then
-            log "Active interface: $cfg -> $wan_prefix"
-            
-            # SNAT: outgoing from LAN to WAN
-            echo "oifname \"$cfg\" ip6 saddr $LAN_PREFIX snat prefix to $wan_prefix;" >> "$SRCNAT_FILE"
-            
-            # DNAT: incoming from WAN to LAN
-            echo "iifname \"$cfg\" ip6 daddr $wan_prefix dnat prefix to $LAN_PREFIX;" >> "$DSTNAT_FILE"
-            
+
+        mwan6_npt_is_true "$is_default" && return 0
+
+        dev="$(mwan6_npt_iface_device "$logical")"
+        if mwan6_npt_iface_up "$dev"; then
+            log "Active interface: $logical ($dev) -> $wan_prefix"
+
+            echo "oifname \"$dev\" ip6 saddr $LAN_PREFIX snat prefix to $wan_prefix;" >>"$SRCNAT_FILE"
+            echo "iifname \"$dev\" ip6 daddr $wan_prefix dnat prefix to $LAN_PREFIX;" >>"$DSTNAT_FILE"
+
             active_count=$((active_count + 1))
         else
-            log "Interface $cfg is down or not found"
+            log "Interface $logical is down or not found${dev:+ (device: $dev)}"
         fi
     }
-    
+
     config_foreach process_interface interface
 
     [ "$validation_failed" -eq 1 ] && {
         log "Error: Fix invalid prefix(es) in /etc/config/mwan6-npt"
         return 1
     }
-    
+
     log "Generated rules for $active_count active interfaces"
-    
-    if [ $active_count -eq 0 ]; then
-        log "Warning: No WAN interfaces configured for NPT (LAN source only)"
+
+    if [ "$active_count" -eq 0 ]; then
+        log "Warning: No active interfaces found"
+        return 1
     fi
-    
+
     return 0
 }
 
 flush_rules() {
     log "Flushing mwan6-npt rules"
-    > "$SRCNAT_FILE" 2>/dev/null
-    > "$DSTNAT_FILE" 2>/dev/null
+    >"$SRCNAT_FILE" 2>/dev/null
+    >"$DSTNAT_FILE" 2>/dev/null
     fw4 reload >/dev/null 2>&1
 }
 
@@ -140,7 +137,7 @@ reload_firewall() {
 
 show_status() {
     load_config
-    
+
     echo "=== mwan6-npt Status ==="
     echo "LAN prefix (default): $LAN_PREFIX"
     echo "LAN interface: ${LAN_IFACE:-(not set)}"

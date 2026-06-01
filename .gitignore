@@ -13,3 +13,7 @@ dist/
 *~
 .DS_Store
 Thumbs.db
+
+# Local infra tests (real IPv6 prefixes, dev hosts) — never commit
+tests/*.local.sh
+tests/test_detect_lan_prefix.local.sh

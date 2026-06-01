@@ -1,5 +1,8 @@
 #!/bin/sh
-# Unit tests for detect-lan-prefix.sh (mock UCI/ubus)
+# Unit tests for detect-lan-prefix.sh (mock UCI/ubus).
+# Uses RFC 5737 documentation prefix only — safe for public git.
+# Real LAN prefix: copy tests/test_detect_lan_prefix.local.sh.example →
+# tests/test_detect_lan_prefix.local.sh (gitignored).
 
 set -e
 
@@ -7,6 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PKG_DIR="$(dirname "$SCRIPT_DIR")"
 DETECT="$PKG_DIR/files/usr/share/mwan6-npt/detect-lan-prefix.sh"
 TEST_ROOT="/tmp/mwan6-npt-detect-$$"
+DOC_PREFIX="2001:db8:1::/56"
 
 pass=0
 fail=0
@@ -22,13 +26,13 @@ trap cleanup EXIT
 
 setup_uci_network() {
 	mkdir -p "$TEST_ROOT/etc/config"
-	cat >"$TEST_ROOT/etc/config/network" <<'EOF'
+	cat >"$TEST_ROOT/etc/config/network" <<EOF
 config interface 'lan'
 	option proto 'static'
 
 config interface 'tb62'
 	option proto 'wireguard'
-	list ip6prefix '2001:db8:1::/56'
+	list ip6prefix '${DOC_PREFIX}'
 EOF
 }
 
@@ -45,10 +49,10 @@ test_reads_single_ip6prefix() {
 
 	setup_uci_network
 	result=$(run_detect)
-	if [ "$result" = "2001:db8:1::/56" ]; then
+	if [ "$result" = "$DOC_PREFIX" ]; then
 		log_pass "detect from network.ip6prefix"
 	else
-		log_fail "expected 2001:db8:1::/56, got: $result"
+		log_fail "expected $DOC_PREFIX, got: $result"
 	fi
 }
 
@@ -95,7 +99,7 @@ test_uci_defaults_no_update() {
 }
 
 main() {
-	echo "=== detect-lan-prefix tests ==="
+	echo "=== detect-lan-prefix tests (public) ==="
 	test_default_config_has_lan_only
 	test_uci_defaults_no_update
 	test_reads_single_ip6prefix

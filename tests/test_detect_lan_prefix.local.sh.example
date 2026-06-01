@@ -1,0 +1,51 @@
+#!/bin/sh
+# Local-only detect-lan-prefix test with real LAN prefix.
+# Copy to test_detect_lan_prefix.local.sh (gitignored) and set TEST_LAN_PREFIX.
+
+set -e
+
+TEST_LAN_PREFIX="${TEST_LAN_PREFIX:-CHANGE_ME::/56}"
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PKG_DIR="$(dirname "$SCRIPT_DIR")"
+DETECT="$PKG_DIR/files/usr/share/mwan6-npt/detect-lan-prefix.sh"
+TEST_ROOT="/tmp/mwan6-npt-detect-local-$$"
+
+pass=0
+fail=0
+
+log_pass() { echo "[PASS] $1"; pass=$((pass + 1)); }
+log_fail() { echo "[FAIL] $1"; fail=$((fail + 1)); }
+
+cleanup() { rm -rf "$TEST_ROOT"; }
+trap cleanup EXIT
+
+if [ "$TEST_LAN_PREFIX" = "CHANGE_ME::/56" ]; then
+	echo "[SKIP] Set TEST_LAN_PREFIX or edit this file"
+	exit 0
+fi
+
+command -v uci >/dev/null 2>&1 || {
+	echo "[SKIP] uci not available"
+	exit 0
+}
+
+mkdir -p "$TEST_ROOT/etc/config"
+cat >"$TEST_ROOT/etc/config/network" <<EOF
+config interface 'lan'
+	option proto 'static'
+
+config interface 'tb62'
+	option proto 'wireguard'
+	list ip6prefix '${TEST_LAN_PREFIX}'
+EOF
+
+result=$(UCI_CONFIG_DIR="$TEST_ROOT/etc/config" "$DETECT" 2>/dev/null)
+if [ "$result" = "$TEST_LAN_PREFIX" ]; then
+	log_pass "detect real LAN prefix"
+else
+	log_fail "expected $TEST_LAN_PREFIX, got: $result"
+fi
+
+echo "Results: $pass passed, $fail failed"
+[ "$fail" -eq 0 ]

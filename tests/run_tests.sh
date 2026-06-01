@@ -269,8 +269,13 @@ main() {
     test_interface_state_check
     
     if [ -x "$SCRIPT_DIR/test_detect_lan_prefix.sh" ]; then
-        log_info "Running detect-lan-prefix tests..."
+        log_info "Running detect-lan-prefix tests (public)..."
         bash "$SCRIPT_DIR/test_detect_lan_prefix.sh" || failed=$((failed + 1))
+    fi
+
+    if [ -x "$SCRIPT_DIR/test_detect_lan_prefix.local.sh" ]; then
+        log_info "Running detect-lan-prefix local tests..."
+        bash "$SCRIPT_DIR/test_detect_lan_prefix.local.sh" || failed=$((failed + 1))
     fi
     
     teardown

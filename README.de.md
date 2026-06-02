@@ -30,9 +30,13 @@ wget https://github.com/nagual2/mwan6-npt/releases/download/v1.1.1/mwan6-npt_1.1
 # OpenWrt 23.x (opkg)
 opkg install /tmp/mwan6-npt.ipk
 
-# OpenWrt 25.x (apk): Tarball-Installation aus Quellen:
-# make -f Makefile.build ipk && scripts/install-tarball.sh 192.168.1.1
+# OpenWrt 25.12+ (apk)
+wget https://github.com/nagual2/mwan6-npt/releases/download/v1.1.1/mwan6-npt-1.1.1-r1.apk -O /tmp/mwan6-npt.apk
+apk add --allow-untrusted /tmp/mwan6-npt.apk
+# oder: ./scripts/install-apk.sh 192.168.1.1
 ```
+
+**apk-Pin:** `mwan6-npt><Q1hash…` in `/etc/apk/world` — siehe [luci-app-mwan3 — Pinning](https://github.com/nagual2/luci-app-mwan3#pinning-the-nagual2-fork-apk).
 
 Prüfen Sie nach der Installation zuerst `/etc/config/mwan6-npt` und führen Sie dann ein `reload` des Dienstes aus:
 
@@ -251,6 +255,14 @@ ULA-Adressen erfordern keine echte IPv6-Konnektivität und sind sicher für Labo
 - OpenWrt 22.03+ (fw4/nftables)
 - Paket `nftables`
 - Paket `ip-full`
+
+## Verwandte Pakete
+
+| Paket | Repository |
+|-------|------------|
+| mwan3 (Fork) | [nagual2/mwan3](https://github.com/nagual2/mwan3) |
+| luci-app-mwan3 | [nagual2/luci-app-mwan3](https://github.com/nagual2/luci-app-mwan3) |
+| luci mwan6-npt | [nagual2/mwan6-npt-luci](https://github.com/nagual2/mwan6-npt-luci) |
 
 ## Dokumentation
 

@@ -30,9 +30,13 @@ wget https://github.com/nagual2/mwan6-npt/releases/download/v1.1.1/mwan6-npt_1.1
 # OpenWrt 23.x (opkg)
 opkg install /tmp/mwan6-npt.ipk
 
-# OpenWrt 25.x (apk) — standalone .ipk не принимается apk; используйте:
-# make -f Makefile.build ipk && scripts/install-tarball.sh 192.168.1.1
+# OpenWrt 25.12+ (apk)
+wget https://github.com/nagual2/mwan6-npt/releases/download/v1.1.1/mwan6-npt-1.1.1-r1.apk -O /tmp/mwan6-npt.apk
+apk add --allow-untrusted /tmp/mwan6-npt.apk
+# или: ./scripts/install-apk.sh 192.168.1.1
 ```
+
+**Pin (apk):** после `apk add --allow-untrusted` в `/etc/apk/world` появляется `mwan6-npt><Q1hash…` — feeds не заменят fork при `apk upgrade`. См. [luci-app-mwan3 — Pinning](https://github.com/nagual2/luci-app-mwan3#pinning-the-nagual2-fork-apk).
 
 После установки проверьте `/etc/config/mwan6-npt`, затем выполните `reload` сервиса:
 
@@ -250,6 +254,14 @@ ULA-адреса не требуют реального IPv6-соединени�
 - OpenWrt 22.03+ (fw4/nftables)
 - Пакет `nftables`
 - Пакет `ip-full`
+
+## Связанные пакеты
+
+| Пакет | Репозиторий |
+|-------|-------------|
+| mwan3 (fork) | [nagual2/mwan3](https://github.com/nagual2/mwan3) |
+| luci-app-mwan3 | [nagual2/luci-app-mwan3](https://github.com/nagual2/luci-app-mwan3) |
+| luci mwan6-npt | [nagual2/mwan6-npt-luci](https://github.com/nagual2/mwan6-npt-luci) |
 
 ## Документация
 

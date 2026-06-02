@@ -34,6 +34,12 @@ wget https://github.com/nagual2/mwan6-npt/releases/download/v1.1.1/mwan6-npt-1.1
 apk add --allow-untrusted /tmp/mwan6-npt.apk
 ```
 
+Or use `./scripts/install-apk.sh 192.168.1.1` after `make -f Makefile.build apk`.
+
+### apk pin (OpenWrt 25.12+)
+
+`apk add --allow-untrusted` adds `mwan6-npt><Q1hash…` to `/etc/apk/world` and prevents feeds from replacing the fork on `apk upgrade`. Check with `grep '^mwan6-npt><' /etc/apk/world` and `apk policy mwan6-npt`. See [luci-app-mwan3 — Pinning](https://github.com/nagual2/luci-app-mwan3#pinning-the-nagual2-fork-apk).
+
 On **first install** the package creates only the `lan` section (NPT source), service **disabled** (`globals.enabled=0`). LAN prefix is auto-detected from `network` (single `ip6prefix` or delegation on `lan`). WAN tunnels are added via **luci-app-mwan6-npt** or manual UCI — WAN prefixes are **not** written to `network`, only used for NPT.
 
 ```bash
@@ -248,6 +254,14 @@ ULA addresses don't require real IPv6 connectivity and are safe for lab testing.
 - OpenWrt 22.03+ (fw4/nftables)
 - `nftables` package
 - `ip-full` package
+
+## Related packages
+
+| Package | Repository |
+|---------|------------|
+| mwan3 (fork) | [nagual2/mwan3](https://github.com/nagual2/mwan3) |
+| luci-app-mwan3 | [nagual2/luci-app-mwan3](https://github.com/nagual2/luci-app-mwan3) |
+| luci mwan6-npt | [nagual2/mwan6-npt-luci](https://github.com/nagual2/mwan6-npt-luci) |
 
 ## Documentation
 

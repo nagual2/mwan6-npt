@@ -278,6 +278,11 @@ main() {
         bash "$SCRIPT_DIR/test_detect_lan_prefix.sh" || failed=$((failed + 1))
     fi
 
+    if [ -x "$SCRIPT_DIR/test_import_from_mwan3.sh" ]; then
+        log_info "Running import-from-mwan3 tests..."
+        bash "$SCRIPT_DIR/test_import_from_mwan3.sh" || failed=$((failed + 1))
+    fi
+
     if [ -x "$SCRIPT_DIR/test_detect_lan_prefix.local.sh" ]; then
         log_info "Running detect-lan-prefix local tests..."
         bash "$SCRIPT_DIR/test_detect_lan_prefix.local.sh" || failed=$((failed + 1))

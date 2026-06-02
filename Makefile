@@ -59,6 +59,8 @@ define Package/mwan6-npt/install
 	$(INSTALL_DATA) ./files/usr/share/mwan6-npt/functions.sh $(1)/usr/share/mwan6-npt/
 	$(INSTALL_BIN) ./files/usr/share/mwan6-npt/detect-lan-prefix.sh $(1)/usr/share/mwan6-npt/
 	$(INSTALL_BIN) ./files/usr/share/mwan6-npt/detect-wan-prefix.sh $(1)/usr/share/mwan6-npt/
+	$(INSTALL_BIN) ./files/usr/share/mwan6-npt/import-from-mwan3.sh $(1)/usr/share/mwan6-npt/
+	$(INSTALL_BIN) ./files/usr/share/mwan6-npt/sync-lan-prefix.sh $(1)/usr/share/mwan6-npt/
 
 	$(INSTALL_DIR) $(1)/usr/share/doc/mwan6-npt
 	$(INSTALL_DATA) ./LICENSE $(1)/usr/share/doc/mwan6-npt/
@@ -66,6 +68,9 @@ define Package/mwan6-npt/install
 	$(INSTALL_DATA) ./README.md $(1)/usr/share/doc/mwan6-npt/README.en.md
 	$(INSTALL_DATA) ./README.ru.md $(1)/usr/share/doc/mwan6-npt/
 	$(INSTALL_DATA) ./README.de.md $(1)/usr/share/doc/mwan6-npt/
+	$(INSTALL_DATA) ./docs/INSTALL-stack.ru.md $(1)/usr/share/doc/mwan6-npt/
+	$(INSTALL_DATA) ./docs/INSTALL-stack.en.md $(1)/usr/share/doc/mwan6-npt/
+	$(INSTALL_DATA) ./docs/INSTALL-stack.de.md $(1)/usr/share/doc/mwan6-npt/
 endef
 
 $(eval $(call BuildPackage,mwan6-npt))

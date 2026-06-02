@@ -21,6 +21,10 @@ if [ -z "$current_prefix" ] && [ -x /usr/share/mwan6-npt/detect-lan-prefix.sh ];
 	[ -n "$detected" ] && uci set mwan6-npt.lan.wan_prefix="$detected"
 fi
 
+if [ -x /usr/share/mwan6-npt/import-from-mwan3.sh ]; then
+	/usr/share/mwan6-npt/import-from-mwan3.sh
+fi
+
 uci commit mwan6-npt
 
 /etc/init.d/mwan6-npt enable

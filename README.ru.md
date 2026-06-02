@@ -40,7 +40,7 @@ apk add --allow-untrusted /tmp/mwan6-npt.apk
 
 После установки проверьте `/etc/config/mwan6-npt`, затем выполните `reload` сервиса:
 
-При **первой установке** пакет создаёт только секцию `lan` (источник NPT), сервис **выключен** (`globals.enabled=0`). LAN-префикс определяется автоматически из `network` (единственный `ip6prefix` или делегирование на `lan`). WAN-туннели добавляются через LuCI (**luci-app-mwan6-npt**) или вручную в UCI — префиксы WAN **не записываются** в `network`, только используются для NPT.
+При **первой установке** (`/etc/uci-defaults/99-mwan6-npt`): секция `lan`, сервис **выключен** (`globals.enabled=0`); `detect-lan-prefix.sh` заполняет `lan.wan_prefix`, если PD уже есть в `network`; `import-from-mwan3.sh` добавляет WAN-секции из настроенного **mwan3** (IPv6, enabled). Если PD настраиваете позже — `sync-lan-prefix.sh`. Подробно: [docs/INSTALL-stack.ru.md](docs/INSTALL-stack.ru.md) §3.6–3.8.
 
 ```bash
 # Сначала проверьте конфигурацию
@@ -263,9 +263,11 @@ ULA-адреса не требуют реального IPv6-соединени�
 | luci-app-mwan3 | [nagual2/luci-app-mwan3](https://github.com/nagual2/luci-app-mwan3) |
 | luci mwan6-npt | [nagual2/mwan6-npt-luci](https://github.com/nagual2/mwan6-npt-luci) |
 
+**Установка всего стека вместе:** [docs/INSTALL-stack.ru.md](docs/INSTALL-stack.ru.md) (на роутере: `/usr/share/doc/mwan6-npt/INSTALL-stack.ru.md`).
+
 ## Документация
 
-Триязычные README устанавливаются в `/usr/share/doc/mwan6-npt/` (`README.en.md`, `README.ru.md`, `README.de.md`).
+Триязычные README и инструкция по стеку устанавливаются в `/usr/share/doc/mwan6-npt/` (`README.en.md`, `README.ru.md`, `README.de.md`, `INSTALL-stack.ru.md`, `INSTALL-stack.en.md`, `INSTALL-stack.de.md`).
 
 ## Лицензия
 

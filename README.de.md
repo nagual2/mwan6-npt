@@ -264,9 +264,11 @@ ULA-Adressen erfordern keine echte IPv6-Konnektivität und sind sicher für Labo
 | luci-app-mwan3 | [nagual2/luci-app-mwan3](https://github.com/nagual2/luci-app-mwan3) |
 | luci mwan6-npt | [nagual2/mwan6-npt-luci](https://github.com/nagual2/mwan6-npt-luci) |
 
+**Gesamter Stack:** [docs/INSTALL-stack.de.md](docs/INSTALL-stack.de.md) (auf dem Router: `/usr/share/doc/mwan6-npt/INSTALL-stack.de.md`). [English](docs/INSTALL-stack.en.md) · [Русский](docs/INSTALL-stack.ru.md).
+
 ## Dokumentation
 
-Dreisprachige README-Dateien werden unter `/usr/share/doc/mwan6-npt/` installiert (`README.en.md`, `README.ru.md`, `README.de.md`).
+Dreisprachige README- und Stack-Anleitungen unter `/usr/share/doc/mwan6-npt/` (`README.en.md`, `README.ru.md`, `README.de.md`, `INSTALL-stack.en.md`, `INSTALL-stack.ru.md`, `INSTALL-stack.de.md`).
 
 ## Lizenz
 

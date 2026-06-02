@@ -13,3 +13,8 @@ install -m 0644 "$ROOT/LICENSE" "$ROOT/NOTICE" "$DOC/"
 install -m 0644 "$ROOT/README.md" "$DOC/README.en.md"
 install -m 0644 "$ROOT/README.ru.md" "$DOC/"
 install -m 0644 "$ROOT/README.de.md" "$DOC/"
+if [ -d "$ROOT/docs" ]; then
+	for f in INSTALL-stack.ru.md INSTALL-stack.en.md INSTALL-stack.de.md; do
+		[ -f "$ROOT/docs/$f" ] && install -m 0644 "$ROOT/docs/$f" "$DOC/"
+	done
+fi

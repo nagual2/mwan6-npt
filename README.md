@@ -263,15 +263,20 @@ ULA addresses don't require real IPv6 connectivity and are safe for lab testing.
 | luci-app-mwan3 | [nagual2/luci-app-mwan3](https://github.com/nagual2/luci-app-mwan3) |
 | luci mwan6-npt | [nagual2/mwan6-npt-luci](https://github.com/nagual2/mwan6-npt-luci) |
 
+**Full stack install guide:** [English](docs/INSTALL-stack.en.md) · [Русский](docs/INSTALL-stack.ru.md) · [Deutsch](docs/INSTALL-stack.de.md) (on router: `/usr/share/doc/mwan6-npt/INSTALL-stack.*.md`).
+
 ## Documentation
 
-Trilingual README files are installed with the package under `/usr/share/doc/mwan6-npt/`:
+Trilingual README files and stack install guides are installed under `/usr/share/doc/mwan6-npt/`:
 
 | File | Language |
 |------|----------|
 | `README.en.md` | English |
 | `README.ru.md` | Russian |
 | `README.de.md` | German |
+| `INSTALL-stack.en.md` | Stack install (English) |
+| `INSTALL-stack.ru.md` | Stack install (Russian) |
+| `INSTALL-stack.de.md` | Stack install (German) |
 
 ## License
 

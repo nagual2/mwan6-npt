@@ -58,6 +58,8 @@ install -m 0755 "$ROOT/files/usr/sbin/mwan6-npt" "$STAGE/usr/sbin/"
 install -m 0644 "$ROOT/files/usr/share/mwan6-npt/functions.sh" "$STAGE/usr/share/mwan6-npt/"
 install -m 0755 "$ROOT/files/usr/share/mwan6-npt/detect-lan-prefix.sh" "$STAGE/usr/share/mwan6-npt/"
 install -m 0755 "$ROOT/files/usr/share/mwan6-npt/detect-wan-prefix.sh" "$STAGE/usr/share/mwan6-npt/"
+install -m 0755 "$ROOT/files/usr/share/mwan6-npt/import-from-mwan3.sh" "$STAGE/usr/share/mwan6-npt/"
+install -m 0755 "$ROOT/files/usr/share/mwan6-npt/sync-lan-prefix.sh" "$STAGE/usr/share/mwan6-npt/"
 
 chmod +x "$ROOT/scripts/stage-docs.sh"
 "$ROOT/scripts/stage-docs.sh" "$STAGE" mwan6-npt

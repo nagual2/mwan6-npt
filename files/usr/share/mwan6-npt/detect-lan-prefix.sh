@@ -1,7 +1,9 @@
 #!/bin/sh
-# Detect the LAN-side IPv6 prefix for mwan6-npt.
-# Reads network PD (single ip6prefix) or delegated prefix on interface lan.
-# Does not modify UCI network — read-only.
+# Detect the LAN-side IPv6 prefix for mwan6-npt (read-only).
+# Sources (first match wins):
+#   1) Any non-ULA network.<iface>.ip6prefix (first global prefix found)
+#   2) Delegated prefix on OpenWrt interface "lan" via ubus (ipv6-prefix-assignment)
+# Does not modify UCI network. Re-run after PD setup: sync-lan-prefix.sh
 
 is_ula_prefix() {
 	case "$1" in

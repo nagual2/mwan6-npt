@@ -8,7 +8,7 @@ SDK_DIR="${SDK_DIR:-$ROOT/build/sdk}"
 APK_TOOL="${APK_TOOL:-$SDK_DIR/staging_dir/host/bin/apk}"
 
 PROJECT_VERSION="${PROJECT_VERSION:-$(git -C "$ROOT" describe --tags --match 'v*' 2>/dev/null | sed 's/^v//')}"
-PROJECT_VERSION="${PROJECT_VERSION:-1.1.1}"
+PROJECT_VERSION="${PROJECT_VERSION:-1.1.2}"
 PKG_RELEASE="${PKG_RELEASE:-1}"
 PKG_VERSION="${PROJECT_VERSION}-r${PKG_RELEASE}"
 

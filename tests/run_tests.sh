@@ -267,6 +267,11 @@ main() {
     test_rule_paths
     test_generate_rules
     test_interface_state_check
+
+    if [ -x "$SCRIPT_DIR/test_rule_generation.sh" ]; then
+        log_info "Running rule generation tests..."
+        bash "$SCRIPT_DIR/test_rule_generation.sh" && log_pass "rule generation helpers" || failed=$((failed + 1))
+    fi
     
     if [ -x "$SCRIPT_DIR/test_detect_lan_prefix.sh" ]; then
         log_info "Running detect-lan-prefix tests (public)..."

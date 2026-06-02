@@ -1,7 +1,7 @@
 #!/bin/sh
 # mwan6-npt helper functions
 
-# Normalize UCI boolean (handles quoted values like '\''0'\'').
+# Normalize UCI boolean (handles quoted values and CRLF).
 mwan6_npt_is_true() {
     local v="${1:-0}"
 
@@ -50,6 +50,14 @@ mwan6_npt_check_connectivity() {
 mwan6_npt_get_prefix() {
     local iface="$1"
     ip -6 route show dev "$iface" 2>/dev/null | awk '/^[0-9a-f]+:/ {print $1; exit}'
+}
+
+# Get interface primary global IPv6 address (WireGuard / tunnel endpoint).
+mwan6_npt_iface_router_addr() {
+    local dev="$1"
+
+    ip -6 addr show dev "$dev" scope global 2>/dev/null \
+        | awk '/inet6/ { print $2 }' | cut -d/ -f1 | head -1
 }
 
 # Validate IPv6 prefix format

@@ -45,6 +45,8 @@ generate_rules() {
     local wan_prefix=""
     local active_count=0
     local validation_failed=0
+    local srcnat_tmp="${SRCNAT_FILE}.tmp"
+    local dstnat_tmp="${DSTNAT_FILE}.tmp"
 
     load_config
 
@@ -61,8 +63,8 @@ generate_rules() {
     mkdir -p "${CHAIN_POST_DIR}/srcnat"
     mkdir -p "${CHAIN_POST_DIR}/dstnat"
 
-    > "$SRCNAT_FILE"
-    > "$DSTNAT_FILE"
+    : >"$srcnat_tmp"
+    : >"$dstnat_tmp"
 
     log "Generating NPTv6 rules for LAN prefix $LAN_PREFIX (interface: $LAN_IFACE)"
 
@@ -71,6 +73,7 @@ generate_rules() {
         local is_default=""
         local dev=""
         local logical="$cfg"
+        local router_addr=""
 
         config_get enabled "$cfg" enabled 0
         config_get wan_prefix "$cfg" wan_prefix ""
@@ -87,12 +90,24 @@ generate_rules() {
 
         mwan6_npt_is_true "$is_default" && return 0
 
+        if [ "$wan_prefix" = "$LAN_PREFIX" ]; then
+            log "Skip $cfg: wan_prefix equals LAN prefix (no NPT needed)"
+            return 0
+        fi
+
         dev="$(mwan6_npt_iface_device "$logical")"
         if mwan6_npt_iface_up "$dev"; then
+            router_addr="$(mwan6_npt_iface_router_addr "$dev")"
             log "Active interface: $logical ($dev) -> $wan_prefix"
 
-            echo "oifname \"$dev\" ip6 saddr $LAN_PREFIX snat prefix to $wan_prefix;" >>"$SRCNAT_FILE"
-            echo "iifname \"$dev\" ip6 daddr $wan_prefix dnat prefix to $LAN_PREFIX;" >>"$DSTNAT_FILE"
+            echo "oifname \"$dev\" ip6 saddr $LAN_PREFIX snat prefix to $wan_prefix;" >>"$srcnat_tmp"
+            echo "iifname \"$dev\" ip6 daddr $wan_prefix dnat prefix to $LAN_PREFIX;" >>"$dstnat_tmp"
+
+            # Router-originated traffic: mwan3 fwmark may egress via this oif while
+            # busybox ping6 still binds another tunnel's WG source address.
+            if [ -n "$router_addr" ]; then
+                echo "oifname \"$dev\" ip6 saddr != $wan_prefix snat ip6 to $router_addr;" >>"$srcnat_tmp"
+            fi
 
             active_count=$((active_count + 1))
         else
@@ -104,16 +119,20 @@ generate_rules() {
 
     [ "$validation_failed" -eq 1 ] && {
         log "Error: Fix invalid prefix(es) in /etc/config/mwan6-npt"
+        rm -f "$srcnat_tmp" "$dstnat_tmp"
         return 1
     }
 
     log "Generated rules for $active_count active interfaces"
 
     if [ "$active_count" -eq 0 ]; then
-        log "Warning: No active interfaces found"
+        log "Warning: No active interfaces found — keeping previous hook files"
+        rm -f "$srcnat_tmp" "$dstnat_tmp"
         return 1
     fi
 
+    mv -f "$srcnat_tmp" "$SRCNAT_FILE"
+    mv -f "$dstnat_tmp" "$DSTNAT_FILE"
     return 0
 }
 
@@ -143,7 +162,7 @@ show_status() {
     echo "LAN interface: ${LAN_IFACE:-(not set)}"
     echo ""
     echo "Active SNAT rules (srcnat):"
-    nft list chain inet fw4 srcnat 2>/dev/null | grep -E "snat .*prefix" || echo "  (none)"
+    nft list chain inet fw4 srcnat 2>/dev/null | grep -E "snat .*prefix|snat ip6 to" || echo "  (none)"
     echo ""
     echo "Active DNAT rules (dstnat):"
     nft list chain inet fw4 dstnat 2>/dev/null | grep -E "dnat .*prefix" || echo "  (none)"

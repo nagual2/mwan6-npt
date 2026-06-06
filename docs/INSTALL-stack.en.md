@@ -406,7 +406,23 @@ Download `.apk` (OpenWrt **25.12+**) or `.ipk` (**23.x**) from Releases of each 
 | mwan6-npt | `v1.1.3` |
 | luci-app-mwan6-npt | `v1.2.2` |
 | luci-i18n-mwan6-npt-ru | `v1.0.2` |
-| luci-proto-wireguard-ip6prefix | build from repository or take `.apk` from `dist/` |
+| luci-proto-wireguard-ip6prefix | `v1.0.0` (r1 or r2 — see below) |
+
+**Direct `.apk` download links (GitHub Releases):**
+
+| Package | Download |
+|---------|----------|
+| mwan3 x86_64 (dev/VM) | [mwan3-2.12.1-r5_x86_64.apk](https://github.com/nagual2/mwan3/releases/download/v2.12.1-r5/mwan3-2.12.1-r5_x86_64.apk) |
+| mwan3 aarch64 (mediatek prod) | [mwan3-2.12.1-r5_aarch64_cortex-a53.apk](https://github.com/nagual2/mwan3/releases/download/v2.12.1-r5/mwan3-2.12.1-r5_aarch64_cortex-a53.apk) |
+| luci-app-mwan3 | [luci-app-mwan3-1.0.1-r1.apk](https://github.com/nagual2/luci-app-mwan3/releases/download/v1.0.1/luci-app-mwan3-1.0.1-r1.apk) |
+| luci-i18n-mwan3-ru | [luci-i18n-mwan3-ru-1.0.0-r1.apk](https://github.com/nagual2/luci-i18n-mwan3-ru/releases/download/v1.0.0/luci-i18n-mwan3-ru-1.0.0-r1.apk) |
+| mwan6-npt | [mwan6-npt-1.1.3-r1.apk](https://github.com/nagual2/mwan6-npt/releases/download/v1.1.3/mwan6-npt-1.1.3-r1.apk) |
+| luci-app-mwan6-npt | [luci-app-mwan6-npt-1.2.2-r1.apk](https://github.com/nagual2/mwan6-npt-luci/releases/download/v1.2.2/luci-app-mwan6-npt-1.2.2-r1.apk) |
+| luci-i18n-mwan6-npt-ru | [luci-i18n-mwan6-npt-ru-1.0.2-r1.apk](https://github.com/nagual2/luci-i18n-mwan6-npt-ru/releases/download/v1.0.2/luci-i18n-mwan6-npt-ru-1.0.2-r1.apk) |
+| luci-proto-wireguard-ip6prefix r1 (LuCI ~26.143, dev) | […-r1.apk](https://github.com/nagual2/luci-proto-wireguard-ip6prefix/releases/download/v1.0.0/luci-proto-wireguard-ip6prefix-1.0.0-r1.apk) |
+| luci-proto-wireguard-ip6prefix r2 (LuCI ~26.138, prod) | […-r2.apk](https://github.com/nagual2/luci-proto-wireguard-ip6prefix/releases/download/v1.0.0/luci-proto-wireguard-ip6prefix-1.0.0-r2.apk) |
+
+**mwan3:** filename depends on architecture (`apk info arch` → third line). **ip6prefix:** depends on installed `luci-proto-wireguard` version (`apk policy luci-proto-wireguard`).
 
 ### 6.1. OpenWrt 25.12+ (`apk`)
 
@@ -417,10 +433,11 @@ cd /tmp
 
 # 1) WireGuard LuCI patch (after luci-proto-wireguard from feeds)
 # apk add luci-proto-wireguard   # if not yet installed
-apk add --allow-untrusted ./luci-proto-wireguard-ip6prefix-*-r1.apk
+# r1 — LuCI ~26.143 (dev); r2 — LuCI ~26.138 (prod mediatek)
+apk add --allow-untrusted ./luci-proto-wireguard-ip6prefix-1.0.0-r2.apk
 
-# 2) mwan3
-apk add --allow-untrusted ./mwan3-*-r*.apk
+# 2) mwan3 (x86_64 or aarch64_cortex-a53 — see table above)
+apk add --allow-untrusted ./mwan3-2.12.1-r5_aarch64_cortex-a53.apk
 
 # 3) LuCI mwan3
 apk add --allow-untrusted ./luci-app-mwan3-*-r*.apk
@@ -453,6 +470,11 @@ Ready-made install scripts in repositories:
 | luci-app-mwan3 | `./scripts/install-apk.sh <router-ip>` |
 | mwan6-npt | `./scripts/install-apk.sh <router-ip>` |
 | mwan6-npt-luci | `./scripts/install-apk.sh <router-ip>` |
+| luci-proto-wireguard-ip6prefix | `./scripts/install-apk.sh <router-ip>` |
+| luci-i18n-mwan3-ru | `./scripts/install-apk.sh <router-ip>` |
+| luci-i18n-mwan6-npt-ru | `./scripts/install-apk.sh <router-ip>` |
+
+On prod after flash: `Backup/openwrt-prod/scripts/install_prod_packages.sh` (feeds + nagual2 from GitHub).
 
 ### 6.2. OpenWrt 23.x (`opkg` / `.ipk`)
 
@@ -464,7 +486,7 @@ opkg install ./luci-i18n-mwan3-ru_*.ipk      # optional
 opkg install ./mwan6-npt_*.ipk
 opkg install ./luci-app-mwan6-npt_*.ipk
 opkg install ./luci-i18n-mwan6-npt-ru_*.ipk  # optional
-opkg install ./luci-proto-wireguard_*.ipk    # if patch ipk is available
+opkg install ./luci-proto-wireguard-ip6prefix_*.ipk
 
 /etc/init.d/mwan3 enable
 /etc/init.d/mwan3 start
@@ -492,7 +514,7 @@ Without `><` the package comes from **official feeds** (stock), which **breaks**
 **Check:**
 
 ```bash
-grep -E '^(mwan3|mwan6-npt|luci-app-mwan3|luci-app-mwan6-npt)><' /etc/apk/world
+grep -E '^(mwan3|mwan6-npt|luci-app-mwan3|luci-app-mwan6-npt|luci-proto-wireguard-ip6prefix)><' /etc/apk/world
 apk policy mwan3
 apk policy mwan6-npt
 ```
@@ -562,7 +584,7 @@ nft list chain inet fw4 srcnat | grep -i prefix
 
 ## 9. Local apk feed (multiple routers)
 
-See [luci-app-mwan3 — local feed](https://github.com/nagual2/luci-app-mwan3#локальный-apk-feed-несколько-роутеров): publish all `.apk` under `/www/nagual2/`. Installation still uses **`--allow-untrusted`**; after install verify pin (§7).
+See [luci-app-mwan3 — local feed](https://github.com/nagual2/luci-app-mwan3/blob/main/README.md#optional-local-apk-feed-several-routers): publish all `.apk` under `/www/nagual2/`. Installation still uses **`--allow-untrusted`**; after install verify pin (§7).
 
 ---
 
@@ -592,6 +614,7 @@ See [luci-app-mwan3 — local feed](https://github.com/nagual2/luci-app-mwan3#л
 | mwan3 | `/usr/share/doc/mwan3/README.en.md` |
 | luci-app-mwan3 | `/usr/share/doc/luci-app-mwan3/README.en.md` |
 | luci-app-mwan6-npt | `/usr/share/doc/luci-app-mwan6-npt/README.en.md` |
+| luci-proto-wireguard-ip6prefix | [GitHub README.md](https://github.com/nagual2/luci-proto-wireguard-ip6prefix/blob/master/README.md) |
 
 ---
 
@@ -604,4 +627,4 @@ See [luci-app-mwan3 — local feed](https://github.com/nagual2/luci-app-mwan3#л
 
 ---
 
-*This document is included in the **mwan6-npt** package (nagual2). Guide version: 2026-06-04.*
+*This document is included in the **mwan6-npt** package (nagual2). Guide version: 2026-06-06.*

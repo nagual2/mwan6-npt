@@ -406,7 +406,23 @@ uci commit mwan6-npt
 | mwan6-npt | `v1.1.3` |
 | luci-app-mwan6-npt | `v1.2.2` |
 | luci-i18n-mwan6-npt-ru | `v1.0.2` |
-| luci-proto-wireguard-ip6prefix | собрать из репозитория или взять `.apk` из `dist/` |
+| luci-proto-wireguard-ip6prefix | `v1.0.0` (r1 или r2 — см. ниже) |
+
+**Прямые ссылки на `.apk` (GitHub Releases):**
+
+| Пакет | Скачать |
+|-------|---------|
+| mwan3 x86_64 (dev/VM) | [mwan3-2.12.1-r5_x86_64.apk](https://github.com/nagual2/mwan3/releases/download/v2.12.1-r5/mwan3-2.12.1-r5_x86_64.apk) |
+| mwan3 aarch64 (mediatek prod) | [mwan3-2.12.1-r5_aarch64_cortex-a53.apk](https://github.com/nagual2/mwan3/releases/download/v2.12.1-r5/mwan3-2.12.1-r5_aarch64_cortex-a53.apk) |
+| luci-app-mwan3 | [luci-app-mwan3-1.0.1-r1.apk](https://github.com/nagual2/luci-app-mwan3/releases/download/v1.0.1/luci-app-mwan3-1.0.1-r1.apk) |
+| luci-i18n-mwan3-ru | [luci-i18n-mwan3-ru-1.0.0-r1.apk](https://github.com/nagual2/luci-i18n-mwan3-ru/releases/download/v1.0.0/luci-i18n-mwan3-ru-1.0.0-r1.apk) |
+| mwan6-npt | [mwan6-npt-1.1.3-r1.apk](https://github.com/nagual2/mwan6-npt/releases/download/v1.1.3/mwan6-npt-1.1.3-r1.apk) |
+| luci-app-mwan6-npt | [luci-app-mwan6-npt-1.2.2-r1.apk](https://github.com/nagual2/mwan6-npt-luci/releases/download/v1.2.2/luci-app-mwan6-npt-1.2.2-r1.apk) |
+| luci-i18n-mwan6-npt-ru | [luci-i18n-mwan6-npt-ru-1.0.2-r1.apk](https://github.com/nagual2/luci-i18n-mwan6-npt-ru/releases/download/v1.0.2/luci-i18n-mwan6-npt-ru-1.0.2-r1.apk) |
+| luci-proto-wireguard-ip6prefix r1 (LuCI ~26.143, dev) | […-r1.apk](https://github.com/nagual2/luci-proto-wireguard-ip6prefix/releases/download/v1.0.0/luci-proto-wireguard-ip6prefix-1.0.0-r1.apk) |
+| luci-proto-wireguard-ip6prefix r2 (LuCI ~26.138, prod) | […-r2.apk](https://github.com/nagual2/luci-proto-wireguard-ip6prefix/releases/download/v1.0.0/luci-proto-wireguard-ip6prefix-1.0.0-r2.apk) |
+
+**mwan3:** имя файла зависит от архитектуры (`apk info arch` → третья строка). **ip6prefix:** зависит от версии `luci-proto-wireguard` (`apk policy luci-proto-wireguard`).
 
 ### 6.1. OpenWrt 25.12+ (`apk`)
 
@@ -417,10 +433,11 @@ cd /tmp
 
 # 1) WireGuard LuCI patch (после luci-proto-wireguard из feeds)
 # apk add luci-proto-wireguard   # если ещё нет
-apk add --allow-untrusted ./luci-proto-wireguard-ip6prefix-*-r1.apk
+# r1 — LuCI ~26.143 (dev); r2 — LuCI ~26.138 (prod mediatek)
+apk add --allow-untrusted ./luci-proto-wireguard-ip6prefix-1.0.0-r2.apk
 
-# 2) mwan3
-apk add --allow-untrusted ./mwan3-*-r*.apk
+# 2) mwan3 (x86_64 или aarch64_cortex-a53 — см. таблицу выше)
+apk add --allow-untrusted ./mwan3-2.12.1-r5_aarch64_cortex-a53.apk
 
 # 3) LuCI mwan3
 apk add --allow-untrusted ./luci-app-mwan3-*-r*.apk
@@ -453,6 +470,11 @@ ssh root@$ROUTER "cd /tmp && apk add --allow-untrusted ./mwan3-*.apk ./luci-app-
 | luci-app-mwan3 | `./scripts/install-apk.sh <router-ip>` |
 | mwan6-npt | `./scripts/install-apk.sh <router-ip>` |
 | mwan6-npt-luci | `./scripts/install-apk.sh <router-ip>` |
+| luci-proto-wireguard-ip6prefix | `./scripts/install-apk.sh <router-ip>` |
+| luci-i18n-mwan3-ru | `./scripts/install-apk.sh <router-ip>` |
+| luci-i18n-mwan6-npt-ru | `./scripts/install-apk.sh <router-ip>` |
+
+На prod после flash можно использовать готовый скрипт: `Backup/openwrt-prod/scripts/install_prod_packages.sh` (feeds + nagual2 с GitHub).
 
 ### 6.2. OpenWrt 23.x (`opkg` / `.ipk`)
 
@@ -464,7 +486,7 @@ opkg install ./luci-i18n-mwan3-ru_*.ipk      # опционально
 opkg install ./mwan6-npt_*.ipk
 opkg install ./luci-app-mwan6-npt_*.ipk
 opkg install ./luci-i18n-mwan6-npt-ru_*.ipk  # опционально
-opkg install ./luci-proto-wireguard_*.ipk    # если есть готовый ipk патча
+opkg install ./luci-proto-wireguard-ip6prefix_*.ipk
 
 /etc/init.d/mwan3 enable
 /etc/init.d/mwan3 start
@@ -492,12 +514,12 @@ luci-app-mwan6-npt><Q1……………=
 **Проверка:**
 
 ```bash
-grep -E '^(mwan3|mwan6-npt|luci-app-mwan3|luci-app-mwan6-npt)><' /etc/apk/world
+grep -E '^(mwan3|mwan6-npt|luci-app-mwan3|luci-app-mwan6-npt|luci-proto-wireguard-ip6prefix)><' /etc/apk/world
 apk policy mwan3
 apk policy mwan6-npt
 ```
 
-Подробнее: [luci-app-mwan3 — Pinning](https://github.com/nagual2/luci-app-mwan3#pinning-the-nagual2-fork-apk).
+Подробнее: [luci-app-mwan3 — Pinning](https://github.com/nagual2/luci-app-mwan3/blob/main/README.ru.md#закрепление-fork-pin-apk).
 
 **Обновление fork:** снова `apk add --allow-untrusted ./NEW.apk` — pin обновится.
 
@@ -562,7 +584,7 @@ nft list chain inet fw4 srcnat | grep -i prefix
 
 ## 9. Локальный apk-feed (несколько роутеров)
 
-См. [luci-app-mwan3 — локальный feed](https://github.com/nagual2/luci-app-mwan3#локальный-apk-feed-несколько-роутеров): публикация всех `.apk` в `/www/nagual2/`. Установка по-прежнему с **`--allow-untrusted`**; после установки проверьте pin (§7).
+См. [luci-app-mwan3 — локальный feed](https://github.com/nagual2/luci-app-mwan3/blob/main/README.ru.md#локальный-apk-feed-несколько-роутеров): публикация всех `.apk` в `/www/nagual2/`. Установка по-прежнему с **`--allow-untrusted`**; после установки проверьте pin (§7).
 
 ---
 
@@ -592,6 +614,7 @@ nft list chain inet fw4 srcnat | grep -i prefix
 | mwan3 | `/usr/share/doc/mwan3/README.ru.md` |
 | luci-app-mwan3 | `/usr/share/doc/luci-app-mwan3/README.ru.md` |
 | luci-app-mwan6-npt | `/usr/share/doc/luci-app-mwan6-npt/README.ru.md` |
+| luci-proto-wireguard-ip6prefix | [GitHub README.ru.md](https://github.com/nagual2/luci-proto-wireguard-ip6prefix/blob/master/README.ru.md) |
 
 ---
 
@@ -604,4 +627,4 @@ nft list chain inet fw4 srcnat | grep -i prefix
 
 ---
 
-*Документ входит в пакет **mwan6-npt** (nagual2). Версия инструкции: 2026-06-04.*
+*Документ входит в пакет **mwan6-npt** (nagual2). Версия инструкции: 2026-06-06.*

@@ -60,6 +60,32 @@ mwan6_npt_iface_router_addr() {
         | awk '/inet6/ { print $2 }' | cut -d/ -f1 | head -1
 }
 
+# Live global prefix of a dynamic (RA/SLAAC) uplink device.
+# Only addresses carrying the kernel 'dynamic' flag qualify: static tunnel
+# endpoints (WireGuard/6in4) never have them, so their configured wan_prefix
+# stays authoritative there. Needs an uncompressed 8-group address (no '::')
+# and a prefix length that is a multiple of 16 (always true for SLAAC);
+# anything else falls back to the configured wan_prefix.
+mwan6_npt_iface_live_prefix() {
+    local dev="$1"
+    local full="" len="" live=""
+
+    [ -n "$dev" ] || return 1
+    full="$(ip -6 addr show dev "$dev" scope global 2>/dev/null \
+        | awk '/inet6/ && /dynamic/ { print $2; exit }')"
+    [ -n "$full" ] || return 1
+
+    len="${full#*/}"
+    case "$len" in '' | *[!0-9]*) return 1 ;; esac
+    [ "$len" -gt 0 ] || return 1
+    [ $((len % 16)) -eq 0 ] || return 1
+
+    live="$(printf '%s' "${full%/*}" | awk -F: -v n="$((len / 16))" \
+        'NF == 8 && n > 0 && $0 !~ /::/ { s = $1; for (i = 2; i <= n; i++) s = s ":" $i; print s "::"; exit }')"
+    [ -n "$live" ] || return 1
+    printf '%s/%s' "$live" "$len"
+}
+
 # Validate IPv6 prefix format
 mwan6_npt_validate_prefix() {
     local prefix="$1"

@@ -5,13 +5,25 @@
 
 [ "$ACTION" = "ifup" ] || [ "$ACTION" = "ifdown" ] || exit 0
 
-# Only act on interfaces managed by mwan6-npt
+. /lib/functions.sh
+
+# Only act on interfaces managed by mwan6-npt.
+# netifd reports INTERFACE (logical name, e.g. wwan2v6) and DEVICE (kernel
+# device, e.g. phy0-sta0); config sections are named logically, so match
+# INTERFACE first and fall back to DEVICE.
 config_load mwan6-npt
 
-local iface_enabled
-config_get_bool iface_enabled "$DEVICE" enabled 0
+iface_enabled=0
+config_get_bool iface_enabled "$INTERFACE" enabled 0
+if [ "$iface_enabled" -ne 1 ] && [ -n "$DEVICE" ]; then
+    config_get_bool iface_enabled "$DEVICE" enabled 0
+fi
 
 [ "$iface_enabled" -eq 1 ] || exit 0
 
-logger -t mwan6-npt "Interface $DEVICE $ACTION, regenerating rules"
+logger -t mwan6-npt "Interface ${INTERFACE:-$DEVICE} $ACTION, regenerating rules"
 /usr/sbin/mwan6-npt update
+
+# RA/SLAAC addresses can arrive after ifup completes; regenerate once more
+# so a changed dynamic prefix is picked up on the first pass.
+(sleep 4 && /usr/sbin/mwan6-npt update) &

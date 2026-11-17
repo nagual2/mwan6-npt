@@ -74,6 +74,7 @@ generate_rules() {
         local dev=""
         local logical="$cfg"
         local router_addr=""
+        local live_prefix=""
 
         config_get enabled "$cfg" enabled 0
         config_get wan_prefix "$cfg" wan_prefix ""
@@ -97,6 +98,14 @@ generate_rules() {
 
         dev="$(mwan6_npt_iface_device "$logical")"
         if mwan6_npt_iface_up "$dev"; then
+            # Dynamic-prefix uplinks (RA/SLAAC, e.g. mobile): the configured
+            # wan_prefix goes stale on every reconnect. Prefer the live one.
+            if live_prefix="$(mwan6_npt_iface_live_prefix "$dev")" \
+                && [ "$live_prefix" != "$wan_prefix" ]; then
+                log "Interface $logical: stale wan_prefix $wan_prefix, using live $live_prefix"
+                wan_prefix="$live_prefix"
+            fi
+
             router_addr="$(mwan6_npt_iface_router_addr "$dev")"
             log "Active interface: $logical ($dev) -> $wan_prefix"
 
